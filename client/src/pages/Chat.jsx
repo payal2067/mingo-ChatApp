@@ -4,6 +4,7 @@ import Chatting from "../components/chat/Chatting";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../config/api";
+import socketAPI from "../config/webSocket";
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -16,22 +17,30 @@ const Chat = () => {
     // Simulate fetching recent users from an API
     try {
       const res = await api.get("/user/allusers");
-      setRecentUser(res.data.data);
+      const filteredUsers = res.data.data.filter((u) => u._id !== user._id);
+      setRecentUser(filteredUsers);
     } catch (error) {
       console.error("Failed to fetch recent users", error);
     }
   };
 
   // console.log(user);
-  const currentUser = 1;
+  //const currentUser = 1;
   console.log(recentUser);
 
   useEffect(() => {
     if (!isLogin) {
       navigate("/login");
-    } else {
+    }
+
+    if (isLogin && user) {
+      socketAPI.emit("OmBhramyaNamah", user._id);
       fetchRecentUsers();
     }
+
+    return () => {
+      socketAPI.emit("OmNamahShivay", user._id);
+    };
   }, []);
 
   return (
@@ -42,22 +51,22 @@ const Chat = () => {
             <h1>Recent Chats</h1>
 
             {recentUser.length > 0 &&
-              recentUser.map((user, idx) => (
+              recentUser.map((friend, idx) => (
                 <div
                   key={idx}
-                  onClick={() => (setSelectedFriend(user), setIsOpenChat(true))}
+                  onClick={() => {
+                    setSelectedFriend(friend);
+                    setIsOpenChat(true);
+                  }}
                   className="cursor-pointer"
                 >
-                  {user.fullName}
+                  {friend.fullName}
                 </div>
               ))}
           </div>
           <div className="w-14/17">
             {selectedFriend ? (
-              <Chatting
-                selectedFriend={selectedFriend}
-                currentUser={currentUser}
-              />
+              <Chatting selectedFriend={selectedFriend} currentUser={user} />
             ) : (
               <div>Select a Friend to start chat</div>
             )}

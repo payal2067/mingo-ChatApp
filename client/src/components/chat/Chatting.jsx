@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { chatData, userData } from "../../assets/dummy";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../config/api";
+import socketAPI from "../../config/webSocket";
 
 const Chatting = ({ selectedFriend, currentUser }) => {
   const { user } = useAuth();
@@ -21,7 +22,7 @@ const Chatting = ({ selectedFriend, currentUser }) => {
     }
   };
 
-  const handleMessageSend = async () => {
+  const handleMessageSendRestAPI = async () => {
     if (!message) return;
     console.log(message);
 
@@ -38,25 +39,68 @@ const Chatting = ({ selectedFriend, currentUser }) => {
     }
   };
 
+  const handleMessageSendSocket = async () => {
+    if (!message) return;
+    console.log(message);
+
+    const payload = {
+      senderID: user._id,
+      receiverID: receiver?._id,
+      message,
+    };
+
+    const timeStamp = new Date().toISOString();
+
+    try {
+      if (socketAPI.connected) {
+        socketAPI.emit("send", payload);
+
+        setFilteredChatData((prev) => [
+          ...prev,
+          {
+            senderId: user._id,
+            receiverId: receiver?._id,
+            message,
+            updatedAt: timeStamp,
+            createdAt: timeStamp,
+          },
+        ]);
+        setMessage("");
+      }
+    } catch (error) {
+      console.error("Failed to send message", error);
+    }
+  };
+
+  const handleReceiveMessage = (newMessagePack) => {
+    console.log("Data Received");
+
+    setFilteredChatData((prev) => [...prev, newMessagePack]);
+  };
+
   useEffect(() => {
     fetchChatData();
     setSender(user);
     setReceiver(selectedFriend);
+    // //Polling
+    // const interval = setInterval(() => {
+    //   fetchChatData();
+    // }, 2000);
 
-    const interval = setInterval(() => {
-      fetchChatData();
-    }, 2000);
+    // return () => {
+    //   clearInterval(interval);
+    // };
+
+    if (selectedFriend) {
+      socketAPI.on("receive", handleReceiveMessage);
+    }
 
     return () => {
-      clearInterval(interval);
+      socketAPI.off("receive", handleReceiveMessage);
     };
   }, [selectedFriend]);
 
-  //   console.log(filteredChatData);
-
-  // console.log(`Receiver: `, receiver);
-  // console.log(`Sender: `, sender);
-
+  console.log(filteredChatData);
   return (
     <>
       <div className="bg-base-200 p-4">
@@ -67,6 +111,7 @@ const Chatting = ({ selectedFriend, currentUser }) => {
         <div className="h-[70vh] w-full card p-3 overflow-y-auto bg-accent/20">
           {filteredChatData.map((chat, idx) => (
             <div
+              key={chat._id || idx}
               className={`chat ${chat.senderId !== sender._id ? "chat-receiver" : "chat-sender"}`}
             >
               <div className="chat-avatar avatar">
@@ -99,7 +144,7 @@ const Chatting = ({ selectedFriend, currentUser }) => {
             onChange={(e) => setMessage(e.target.value)}
             value={message}
           ></textarea>
-          <button onClick={handleMessageSend}>Send</button>
+          <button onClick={handleMessageSendSocket}>Send</button>
         </div>
       </div>
     </>
