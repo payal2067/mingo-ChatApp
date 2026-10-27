@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import dns from "dns";
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const connectDB = async () => {
     try {
@@ -7,7 +10,8 @@ const connectDB = async () => {
         console.log("📦 Database name:", conn.connection.name);
     } catch (error) {
         console.error("❌ MongoDB connection failed:", error.message);
-        process.exit(1);
+        console.log("⚠️ Retrying MongoDB connection in 5 seconds...");
+        setTimeout(connectDB, 5000);
     }
 };
 

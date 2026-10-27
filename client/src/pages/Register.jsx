@@ -84,7 +84,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
-      <div className="w-full max-w-xl">
+      <div className="w-full max-w-md">
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title text-3xl justify-center text-primary">

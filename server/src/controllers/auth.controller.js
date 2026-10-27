@@ -1,17 +1,21 @@
 import { generateToken } from "../config/authToken.config.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
+import OTP from "../models/otp.model.js";
+import { sendOTPEmail } from "../utils/email.util.js";
 
 // ================= REGISTER =================
 export const UserRegister = async (req, res, next) => {
     try {
-        const { fullName, email, mobileNumber, password } = req.body;
+        let { fullName, email, mobileNumber, password } = req.body;
 
         if (!fullName || !email || !mobileNumber || !password) {
             const error = new Error("All fields required");
             error.statusCode = 400;
             return next(error);
         }
+
+        email = email.trim().toLowerCase();
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -39,13 +43,15 @@ export const UserRegister = async (req, res, next) => {
 // ================= LOGIN =================
 export const UserLogin = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
+        let { email, password } = req.body;
 
         if (!email || !password) {
             const error = new Error("All fields required");
             error.statusCode = 400;
             return next(error);
         }
+
+        email = email.trim().toLowerCase();
 
         const existingUser = await User.findOne({ email });
         if (!existingUser) {
@@ -70,6 +76,74 @@ export const UserLogin = async (req, res, next) => {
             message: "Login successful",
             data: userData,
         });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ================= FORGOT PASSWORD =================
+export const UserForgotPassword = async (req, res, next) => {
+    try {
+        let { email } = req.body;
+
+        if (!email) {
+            const error = new Error("Email is required");
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        email = email.trim().toLowerCase();
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            const error = new Error("User with this email does not exist");
+            error.statusCode = 404;
+            return next(error);
+        }
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Delete any existing OTPs for this email to avoid conflicts
+        await OTP.deleteMany({ email });
+
+        // Save new OTP
+        await OTP.create({ email, otp });
+
+        // Send OTP email
+        await sendOTPEmail(email, otp);
+
+        res.status(200).json({ message: "OTP sent to your email" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ================= VERIFY OTP =================
+export const UserVerifyOTP = async (req, res, next) => {
+    try {
+        let { email, otp } = req.body;
+
+        if (!email || !otp) {
+            const error = new Error("Email and OTP are required");
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        email = email.trim().toLowerCase();
+
+        const otpRecord = await OTP.findOne({ email, otp });
+
+        if (!otpRecord) {
+            const error = new Error("Invalid or expired OTP");
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        // OTP is valid, delete it
+        await OTP.deleteOne({ _id: otpRecord._id });
+
+        res.status(200).json({ message: "OTP verified successfully" });
     } catch (error) {
         next(error);
     }
