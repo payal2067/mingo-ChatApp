@@ -9,6 +9,7 @@ import Chat from "./pages/Chat";
 import ContactUs from "./pages/Contactus";
 import UserDashboard from "./pages/UserDashboard";
 import OtpVerification from "./pages/OtpVerification";
+import ResetPassword from "./pages/ResetPassword";
 
 const App = () => {
   const path = useLocation().pathname;
@@ -17,13 +18,13 @@ const App = () => {
   return (
     <>
       <Toaster />
-      {/* {path !== "/chat" && <SiteHeader />} */}
-      <SiteHeader />
+      {path !== "/chat" && <SiteHeader />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-otp" element={<OtpVerification />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/dashboard" element={<UserDashboard />} />

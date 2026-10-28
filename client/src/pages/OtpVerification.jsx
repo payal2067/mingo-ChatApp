@@ -8,8 +8,9 @@ const OtpVerification = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || "";
+  const devOtp = location.state?.devOtp || "";
 
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState(devOtp || "");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -21,10 +22,9 @@ const OtpVerification = () => {
 
     setLoading(true);
     try {
-      // NOTE: Ensure your backend has the matching route (e.g., /auth/verify-otp)
       const res = await api.post("/auth/verify-otp", { email, otp });
       toast.success(res.data?.message || "OTP Verified Successfully!");
-      navigate("/login"); 
+      navigate("/reset-password", { state: { email } }); 
     } catch (error) {
       console.error("OTP verification error:", error);
       toast.error(error.response?.data?.message || "Invalid OTP");
@@ -36,15 +36,22 @@ const OtpVerification = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
       <div className="w-full max-w-md">
-        <div className="card bg-base-100 shadow-xl">
+        <div className="card bg-base-100 shadow-xl border border-base-content/10">
           <div className="card-body">
-            <h2 className="card-title text-3xl justify-center text-primary">
+            <h2 className="card-title text-3xl justify-center text-emerald-500 font-extrabold tracking-tight">
               Verify OTP
             </h2>
-            <p className="text-center text-base-content/70 mb-6">
+            <p className="text-center text-base-content/70 mb-4 text-sm">
               Enter the verification code sent to <br/>
-              <span className="font-semibold">{email || "your email"}</span>
+              <span className="font-semibold text-base-content">{email || "your email"}</span>
             </p>
+
+            {devOtp && (
+              <div className="p-3 mb-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-center justify-between shadow-sm">
+                <span>💡 Code: <strong className="text-sm tracking-widest font-mono text-emerald-500">{devOtp}</strong></span>
+                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-sm">Auto-filled</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>

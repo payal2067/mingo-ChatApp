@@ -111,10 +111,21 @@ export const UserForgotPassword = async (req, res, next) => {
         await OTP.create({ email, otp });
 
         // Send OTP email
-        await sendOTPEmail(email, otp);
+        const emailResult = await sendOTPEmail(email, otp);
 
-        res.status(200).json({ message: "OTP sent to your email" });
+        const responseMessage = emailResult?.simulated
+            ? "OTP generated (Dev Mode: Check server console for code)"
+            : "OTP sent to your email";
+
+        res.status(200).json({
+            success: true,
+            message: responseMessage,
+            simulated: Boolean(emailResult?.simulated),
+            devOtp: process.env.NODE_ENV !== "production" && emailResult?.simulated ? otp : undefined,
+        });
     } catch (error) {
+        // Rollback: if email delivery failed, remove the un-sent OTP
+        await OTP.deleteMany({ email });
         next(error);
     }
 };
@@ -148,3 +159,59 @@ export const UserVerifyOTP = async (req, res, next) => {
         next(error);
     }
 };
+
+// ================= RESET PASSWORD =================
+export const UserResetPassword = async (req, res, next) => {
+    try {
+        let { email, newPassword, confirmPassword } = req.body;
+
+        if (!email || !newPassword || !confirmPassword) {
+            const error = new Error("All fields are required");
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        if (newPassword !== confirmPassword) {
+            const error = new Error("Passwords do not match");
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        if (newPassword.length < 6) {
+            const error = new Error("Password must be at least 6 characters");
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        email = email.trim().toLowerCase();
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            return next(error);
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        // Auto-login: generate token & return user data
+        generateToken(user._id, res);
+
+        const userData = user.toObject();
+        delete userData.password;
+
+        res.status(200).json({
+            success: true,
+            message: "Password reset successfully",
+            data: userData,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+

@@ -22,9 +22,14 @@ const ForgotPasswordModal = ({ open, onClose }) => {
     try {
       const formattedEmail = email.trim().toLowerCase();
       const res = await api.post("/auth/forgot-password", { email: formattedEmail });
-      toast.success(res.data?.message || "OTP sent to your email!");
+      const devOtp = res.data?.devOtp;
+      if (devOtp) {
+        toast.success(`Code generated: ${devOtp}`, { duration: 6000 });
+      } else {
+        toast.success(res.data?.message || "OTP sent to your email!");
+      }
       onClose();
-      navigate("/verify-otp", { state: { email: formattedEmail } });
+      navigate("/verify-otp", { state: { email: formattedEmail, devOtp } });
     } catch (error) {
       console.error("Forgot password error:", error);
       toast.error(error.response?.data?.message || "Failed to send reset link");

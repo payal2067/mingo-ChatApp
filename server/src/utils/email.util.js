@@ -116,9 +116,10 @@ export const sendOTPEmail = async (email, newOTP) => {
 </html>
     `;
 
-    await sendEmail(email, subject, message);
+    const result = await sendEmail(email, subject, message);
+    return result;
   } catch (error) {
-    console.log(error.message);
+    console.error("❌ sendOTPEmail Error:", error.message);
     throw error;
   }
 };
