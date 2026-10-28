@@ -1,0 +1,21 @@
+{
+  "name": "mingo-chat-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "npm run lint --prefix client && npm run lint --prefix server",
+    "lint:client": "npm run lint --prefix client",
+    "lint:server": "npm run lint --prefix server",
+    "build": "npm run build --prefix client",
+    "test": "npm run test --prefix client && npm run test --prefix server",
+    "test:client": "npm run test --prefix client",
+    "test:server": "npm run test --prefix server",
+    "typecheck": "npm run typecheck --prefix client",
+    "ts-prune": "npm run ts-prune --prefix client",
+    "spellcheck": "npm run spellcheck --prefix client",
+    "dev": "npm run dev --prefix client",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server"
+  }
+}
+

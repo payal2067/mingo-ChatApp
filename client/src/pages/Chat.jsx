@@ -68,6 +68,7 @@ const Chat = () => {
         socketAPI.off("onlineUsers", handleOnlineUsers);
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLogin, user]);
 
   return (

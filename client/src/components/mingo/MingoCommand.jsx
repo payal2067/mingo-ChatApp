@@ -2,13 +2,9 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Search,
-  MessageSquare,
   Sun,
   Moon,
-  User,
-  Settings,
   X,
-  Command,
   ArrowRight
 } from "lucide-react";
 

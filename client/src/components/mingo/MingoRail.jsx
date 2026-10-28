@@ -4,7 +4,6 @@ import {
   Phone,
   Users,
   Archive,
-  Settings,
   Sun,
   Moon,
   LogOut,

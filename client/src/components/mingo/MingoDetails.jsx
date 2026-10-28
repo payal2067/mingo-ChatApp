@@ -5,11 +5,9 @@ import {
   BellOff,
   Shield,
   Trash2,
-  Image as ImageIcon,
   FileText,
   Link2,
-  ExternalLink,
-  ChevronRight
+  ExternalLink
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import toast from "react-hot-toast";

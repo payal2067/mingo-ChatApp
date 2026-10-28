@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Check, CheckCheck, Smile, Copy, Reply, Trash2, Pin } from "lucide-react";
+import { CheckCheck, Copy, Reply } from "lucide-react";
 import toast from "react-hot-toast";
 
 const MingoBubble = ({
   chat,
   isSender,
   onReply,
-  onDelete
+  _onDelete
 }) => {
   const [showActions, setShowActions] = useState(false);
   const [reactions, setReactions] = useState([]);

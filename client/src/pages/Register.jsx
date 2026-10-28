@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import api from "../config/api";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -74,6 +75,7 @@ const Register = () => {
       const res = await api.post("/auth/register", formData);
       toast.success(res.data.message);
       handleClearForm();
+      navigate("/login");
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Registration failed");

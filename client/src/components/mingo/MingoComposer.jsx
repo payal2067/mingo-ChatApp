@@ -5,8 +5,7 @@ import {
   Mic,
   Send,
   X,
-  FileText,
-  Image as ImageIcon
+  FileText
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import toast from "react-hot-toast";
@@ -15,8 +14,7 @@ const MingoComposer = ({
   onSendMessage,
   onTyping,
   replyingTo,
-  onCancelReply,
-  onOpenAI
+  onCancelReply
 }) => {
   const [text, setText] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);

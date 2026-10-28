@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Plus, Filter, Check, CheckCheck, Clock, Star, MessageSquare } from "lucide-react";
+import { Search, Plus, MessageSquare } from "lucide-react";
 import { motion } from "motion/react";
 
 const MingoChatList = ({

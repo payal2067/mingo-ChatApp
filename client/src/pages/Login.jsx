@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
-  FiMail,
-  FiLock,
   FiEye,
   FiEyeOff,
-  FiArrowRight,
   FiAlertCircle,
 } from "react-icons/fi";
 import api from "../config/api";

@@ -3,10 +3,7 @@ import {
   Phone,
   Video,
   Info,
-  ChevronLeft,
-  Search,
-  Sparkles,
-  MoreVertical
+  ChevronLeft
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -15,7 +12,6 @@ const MingoChatHeader = ({
   isOnline = false,
   onBack,
   onToggleDetails,
-  onOpenAI,
   isDetailsOpen
 }) => {
   const handleStartCall = (type) => {
@@ -66,14 +62,6 @@ const MingoChatHeader = ({
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1 sm:gap-2">
-        <button
-          onClick={onOpenAI}
-          className="p-2 rounded-xl text-emerald-500 hover:bg-emerald-500/10 transition"
-          title="Mingo AI Assistant"
-        >
-          <Sparkles className="w-4 h-4" />
-        </button>
-
         <button
           onClick={() => handleStartCall("audio")}
           className="p-2 rounded-xl text-base-content/70 hover:text-base-content hover:bg-base-200 transition"

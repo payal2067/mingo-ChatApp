@@ -6,12 +6,12 @@ import MingoChatHeader from "../mingo/MingoChatHeader";
 import MingoBubble from "../mingo/MingoBubble";
 import MingoComposer from "../mingo/MingoComposer";
 import MingoDetails from "../mingo/MingoDetails";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import toast from "react-hot-toast";
 
 const Chatting = ({
   selectedFriend,
-  currentUser,
+  _currentUser,
   onBack,
   onlineUsers = {}
 }) => {
@@ -81,6 +81,7 @@ const Chatting = ({
       socketAPI.off("userTyping", handleIncomingTyping);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFriend]);
 
   // Sending message
@@ -142,7 +143,6 @@ const Chatting = ({
           isOnline={isFriendOnline}
           onBack={onBack}
           onToggleDetails={() => setIsDetailsOpen((v) => !v)}
-          onOpenAI={() => setIsAIOpen(true)}
           isDetailsOpen={isDetailsOpen}
         />
 
@@ -205,7 +205,6 @@ const Chatting = ({
           onTyping={handleBroadcastTyping}
           replyingTo={replyingTo}
           onCancelReply={() => setReplyingTo(null)}
-          onOpenAI={undefined}
         />
       </div>
 
