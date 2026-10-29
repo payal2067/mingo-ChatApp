@@ -74,6 +74,14 @@ const io = new Server(httpServer, {
 
 WebSocket(io);
 
+httpServer.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`❌ Port ${PORT} is busy. Please close other running instances.`);
+  } else {
+    console.error("❌ Server error:", err);
+  }
+});
+
 httpServer.listen(PORT, async () => {
   await connectDB();
   console.log(`✨ Mingo Server started at port: ${PORT}`);
