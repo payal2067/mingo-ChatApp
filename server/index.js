@@ -15,6 +15,9 @@ import WebSocket from "./src/config/webSocket.js";
 
 const app = express();
 
+// Security: Disable X-Powered-By header
+app.disable("x-powered-by");
+
 // Middlewares
 app.use(
   cors({
@@ -34,6 +37,10 @@ app.use("/user", UserRouter);
 import { emailServiceState } from "./src/config/email.config.js";
 
 // Health check
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "Mingo Chat API is running 🚀",

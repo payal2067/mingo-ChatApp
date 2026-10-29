@@ -10,6 +10,7 @@ import ContactUs from "./pages/Contactus";
 import UserDashboard from "./pages/UserDashboard";
 import OtpVerification from "./pages/OtpVerification";
 import ResetPassword from "./pages/ResetPassword";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   const path = useLocation().pathname;
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/chat" element={<Chat />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
