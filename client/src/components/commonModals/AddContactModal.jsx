@@ -160,3 +160,4 @@ const AddContactModal = ({ open, onClose, onContactAdded }) => {
 };
 
 export default AddContactModal;
+
