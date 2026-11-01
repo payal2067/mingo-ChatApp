@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { MessageSquare, Sun, Moon, LogIn, UserPlus } from "lucide-react";
+import MingoLogo from "./common/MingoLogo";
 
 const SiteHeader = () => {
   const { user, isLogin } = useAuth();
@@ -28,11 +29,9 @@ const SiteHeader = () => {
         className="flex items-center gap-2.5 cursor-pointer group"
         onClick={() => navigate("/")}
       >
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white font-extrabold flex items-center justify-center text-lg shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-          M
-        </div>
+        <MingoLogo size={36} />
         <div className="flex items-center gap-1.5">
-          <span className="text-xl font-extrabold tracking-tight text-base-content">
+          <span className="text-xl font-extrabold tracking-tight text-base-content group-hover:text-emerald-500 transition-colors">
             Mingo
           </span>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1" />

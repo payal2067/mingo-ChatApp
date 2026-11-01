@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import MingoLogo from "../common/MingoLogo";
 
 const MingoRail = ({ activeTab, onSelectTab, onOpenCommand, currentTheme, onToggleTheme }) => {
   const navigate = useNavigate();
@@ -37,11 +38,11 @@ const MingoRail = ({ activeTab, onSelectTab, onOpenCommand, currentTheme, onTogg
         {/* Mingo Logo Icon */}
         <button
           onClick={() => onSelectTab("chats")}
-          className="relative group flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white shadow-lg shadow-emerald-500/25 hover:scale-105 active:scale-95 transition-all"
+          className="relative group flex items-center justify-center p-1 rounded-2xl hover:bg-base-200 transition-all cursor-pointer"
           title="Mingo Messaging"
         >
-          <span className="font-extrabold text-xl tracking-tighter">M</span>
-          <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-base-100" />
+          <MingoLogo size={42} />
+          <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 rounded-full border-2 border-base-100 animate-pulse" />
         </button>
 
         {/* Navigation List */}
