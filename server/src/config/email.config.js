@@ -1,6 +1,34 @@
 import nodemailer from "nodemailer";
+import dns from "dns";
 import dotenv from "dotenv";
 dotenv.config(); // ESM hoisting fix: ensure env vars loaded before this module initializes
+
+// Prevent Nodemailer IPv6 ENETUNREACH bug on Windows / IPv4-only networks
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
+
+if (dns.Resolver && dns.Resolver.prototype) {
+  const origResolve6 = dns.Resolver.prototype.resolve6;
+  dns.Resolver.prototype.resolve6 = function (hostname, ...args) {
+    const callback = args[args.length - 1];
+    if (typeof callback === "function") {
+      return callback(Object.assign(new Error("IPv6 disabled for SMTP"), { code: "ENODATA" }));
+    }
+    return origResolve6.apply(this, [hostname, ...args]);
+  };
+}
+
+if (dns.resolve6) {
+  const origDnsResolve6 = dns.resolve6;
+  dns.resolve6 = function (hostname, ...args) {
+    const callback = args[args.length - 1];
+    if (typeof callback === "function") {
+      return callback(Object.assign(new Error("IPv6 disabled for SMTP"), { code: "ENODATA" }));
+    }
+    return origDnsResolve6.apply(this, [hostname, ...args]);
+  };
+}
 
 // Configuration check
 const isConfigured = Boolean(
@@ -13,7 +41,9 @@ const isConfigured = Boolean(
 // Transporter instance
 export const transporter = isConfigured
   ? nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
