@@ -40,7 +40,7 @@ const MingoChatHeader = ({
 
         <div className="relative">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center text-sm border border-emerald-500/20">
-            {friend?.fullName?.charAt(0).toUpperCase() || "U"}
+            {(friend?.displayName || friend?.fullName)?.charAt(0).toUpperCase() || "U"}
           </div>
           {isOnline && (
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-base-100 ring-1 ring-emerald-500/40 animate-pulse" />
@@ -49,7 +49,7 @@ const MingoChatHeader = ({
 
         <div>
           <h2 className="text-sm md:text-base font-bold text-base-content leading-tight">
-            {friend?.fullName || "Conversation"}
+            {friend?.displayName || friend?.fullName || "Conversation"}
           </h2>
           <div className="flex items-center gap-1.5">
             <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-emerald-500" : "bg-base-content/30"}`} />

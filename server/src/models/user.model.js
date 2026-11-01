@@ -1,5 +1,29 @@
 import mongoose from "mongoose";
 
+const savedContactSchema = new mongoose.Schema(
+    {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        contactName: {
+            type: String,
+            trim: true,
+        },
+        mobileNumber: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        savedAt: {
+            type: Date,
+            default: Date.now,
+        },
+    },
+    { _id: true },
+);
+
 const userSchema = new mongoose.Schema(
     {
         fullName: {
@@ -18,6 +42,7 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        savedContacts: [savedContactSchema],
     },
     { timestamps: true },
 );

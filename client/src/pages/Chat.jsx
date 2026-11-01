@@ -8,6 +8,7 @@ import MingoChatList from "../components/mingo/MingoChatList";
 import Chatting from "../components/chat/Chatting";
 import MingoEmptyState from "../components/mingo/MingoEmptyState";
 import MingoCommand from "../components/mingo/MingoCommand";
+import AddContactModal from "../components/commonModals/AddContactModal";
 import toast from "react-hot-toast";
 
 const Chat = () => {
@@ -19,6 +20,7 @@ const Chat = () => {
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [activeRailTab, setActiveRailTab] = useState("chats");
   const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [isAddContactOpen, setIsAddContactOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(
     localStorage.getItem("mingoTheme") || "dark"
   );
@@ -102,7 +104,7 @@ const Chat = () => {
           onSelectFriend={(friend) => setSelectedFriend(friend)}
           onlineUsers={onlineUsers}
           isLoading={isLoadingUsers}
-          onNewChat={() => setIsCommandOpen(true)}
+          onNewChat={() => setIsAddContactOpen(true)}
           onRefresh={fetchUsers}
         />
       </div>
@@ -119,7 +121,7 @@ const Chat = () => {
         ) : (
           <MingoEmptyState
             onOpenCommand={() => setIsCommandOpen(true)}
-            onNewChat={() => setIsCommandOpen(true)}
+            onNewChat={() => setIsAddContactOpen(true)}
           />
         )}
       </main>
@@ -132,6 +134,20 @@ const Chat = () => {
         onSelectFriend={(f) => setSelectedFriend(f)}
         onToggleTheme={toggleTheme}
         currentTheme={currentTheme}
+        onOpenAddContact={() => setIsAddContactOpen(true)}
+      />
+
+      {/* 5. Add Contact by Mobile Number Modal */}
+      <AddContactModal
+        open={isAddContactOpen}
+        onClose={() => setIsAddContactOpen(false)}
+        onContactAdded={(newContact) => {
+          setUsers((prev) => [
+            newContact,
+            ...prev.filter((u) => u._id !== newContact._id),
+          ]);
+          setSelectedFriend(newContact);
+        }}
       />
     </div>
   );

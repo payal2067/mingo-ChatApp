@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { isOriginAllowed, getAllowedOrigins } from "../src/config/cors.config.js";
+import User from "../src/models/user.model.js";
 
 describe("Mingo Server Backend Tests", () => {
   it("server environment is functional", () => {
@@ -31,5 +32,9 @@ describe("Mingo Server Backend Tests", () => {
     const origins = getAllowedOrigins();
     assert.ok(origins.includes("https://mingo-chat-app-five.vercel.app"));
     assert.ok(origins.includes("http://localhost:5173"));
+  });
+
+  it("User model includes savedContacts schema definition", () => {
+    assert.ok(User.schema.path("savedContacts"), "User schema should have savedContacts path");
   });
 });

@@ -67,14 +67,19 @@ const MingoDetails = ({
           <div className="flex flex-col items-center text-center">
             <div className="relative mb-3">
               <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center justify-center text-3xl border-2 border-emerald-500/20 shadow-lg shadow-emerald-500/10">
-                {friend?.fullName?.charAt(0).toUpperCase() || "U"}
+                {(friend?.displayName || friend?.fullName)?.charAt(0).toUpperCase() || "U"}
               </div>
               {isOnline && (
                 <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-base-100 ring-2 ring-emerald-500/40" />
               )}
             </div>
 
-            <h4 className="text-lg font-bold text-base-content">{friend?.fullName || "Friend"}</h4>
+            <h4 className="text-lg font-bold text-base-content">{friend?.displayName || friend?.fullName || "Friend"}</h4>
+            {(friend?.savedMobileNumber || friend?.mobileNumber) && (
+              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                📞 +91 {friend?.savedMobileNumber || friend?.mobileNumber}
+              </p>
+            )}
             <p className="text-xs text-base-content/60 mt-0.5">{friend?.email}</p>
             <span className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />

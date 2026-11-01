@@ -5,10 +5,19 @@ import {
   Sun,
   Moon,
   X,
-  ArrowRight
+  ArrowRight,
+  UserPlus
 } from "lucide-react";
 
-const MingoCommand = ({ isOpen, onClose, onSelectFriend, users = [], onToggleTheme, currentTheme }) => {
+const MingoCommand = ({
+  isOpen,
+  onClose,
+  onSelectFriend,
+  users = [],
+  onToggleTheme,
+  currentTheme,
+  onOpenAddContact,
+}) => {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -28,8 +37,10 @@ const MingoCommand = ({ isOpen, onClose, onSelectFriend, users = [], onToggleThe
   if (!isOpen) return null;
 
   const filteredUsers = users.filter((u) =>
-    u.fullName?.toLowerCase().includes(query.toLowerCase()) ||
-    u.email?.toLowerCase().includes(query.toLowerCase())
+    (u.displayName || u.fullName)?.toLowerCase().includes(query.toLowerCase()) ||
+    u.email?.toLowerCase().includes(query.toLowerCase()) ||
+    u.savedMobileNumber?.includes(query) ||
+    u.mobileNumber?.includes(query)
   );
 
   return (
@@ -91,6 +102,27 @@ const MingoCommand = ({ isOpen, onClose, onSelectFriend, users = [], onToggleThe
               <span className="text-xs font-medium px-2 py-0.5 rounded bg-base-300 text-base-content/70">Theme</span>
             </button>
 
+            {onOpenAddContact && (
+              <button
+                onClick={() => {
+                  onOpenAddContact();
+                  onClose(false);
+                }}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-base-200 text-left transition group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-500">
+                    <UserPlus className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-base-content">Save New Contact</div>
+                    <div className="text-xs text-base-content/50">Add friend by registered mobile number</div>
+                  </div>
+                </div>
+                <span className="text-xs font-medium px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Phone</span>
+              </button>
+            )}
+
             {/* People */}
             {filteredUsers.length > 0 && (
               <>
@@ -108,11 +140,13 @@ const MingoCommand = ({ isOpen, onClose, onSelectFriend, users = [], onToggleThe
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center text-xs">
-                        {u.fullName?.charAt(0).toUpperCase() || "U"}
+                        {(u.displayName || u.fullName)?.charAt(0).toUpperCase() || "U"}
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-base-content">{u.fullName}</div>
-                        <div className="text-xs text-base-content/50">{u.email}</div>
+                        <div className="text-sm font-semibold text-base-content">{u.displayName || u.fullName}</div>
+                        <div className="text-xs text-base-content/50">
+                          {u.savedMobileNumber ? `📞 +91 ${u.savedMobileNumber}` : u.email}
+                        </div>
                       </div>
                     </div>
                     <span className="text-xs text-emerald-500 font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">

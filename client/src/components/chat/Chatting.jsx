@@ -158,7 +158,7 @@ const Chatting = ({
               <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center font-bold text-2xl">
                 💬
               </div>
-              <h4 className="font-bold text-base-content text-base">Say hello to {selectedFriend.fullName}!</h4>
+              <h4 className="font-bold text-base-content text-base">Say hello to {selectedFriend.displayName || selectedFriend.fullName}!</h4>
               <p className="text-xs text-base-content/50 max-w-xs">
                 This is the start of your private, secure conversation on Mingo.
               </p>
@@ -191,7 +191,7 @@ const Chatting = ({
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.3s]" />
               </div>
               <span className="font-medium text-[11px] text-emerald-600 dark:text-emerald-400">
-                {selectedFriend.fullName} is typing...
+                {selectedFriend.displayName || selectedFriend.fullName} is typing...
               </span>
             </motion.div>
           )}

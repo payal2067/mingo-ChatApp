@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Plus, MessageSquare, RotateCw } from "lucide-react";
+import { Search, Plus, RotateCw, UserPlus } from "lucide-react";
 import { motion } from "motion/react";
 
 const MingoChatList = ({
@@ -140,7 +140,7 @@ const MingoChatList = ({
                 {/* Avatar with Presence Indicator */}
                 <div className="relative shrink-0">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center text-base border border-emerald-500/20">
-                    {friend.fullName?.charAt(0).toUpperCase() || "U"}
+                    {(friend.displayName || friend.fullName)?.charAt(0).toUpperCase() || "U"}
                   </div>
                   {isOnline ? (
                     <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-base-100 ring-2 ring-emerald-500/30" />
@@ -153,7 +153,7 @@ const MingoChatList = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
                     <h3 className={`text-sm truncate font-semibold ${isSelected ? "text-emerald-600 dark:text-emerald-400" : "text-base-content"}`}>
-                      {friend.fullName}
+                      {friend.displayName || friend.fullName}
                     </h3>
                     <span className="text-[11px] text-base-content/40 shrink-0">
                       {isOnline ? "Online" : "Recently"}
@@ -162,7 +162,8 @@ const MingoChatList = ({
 
                   <div className="flex items-center justify-between text-xs text-base-content/60">
                     <p className="truncate pr-2">
-                      {friend.lastMessage || "Tap to start conversation"}
+                      {friend.lastMessage ||
+                        (friend.savedMobileNumber ? `📞 +91 ${friend.savedMobileNumber}` : "Tap to chat")}
                     </p>
                     {isOnline && (
                       <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
@@ -179,28 +180,23 @@ const MingoChatList = ({
           })
         ) : (
           <div className="p-8 text-center text-base-content/50 space-y-3">
-            <MessageSquare className="w-8 h-8 mx-auto opacity-30 text-emerald-500" />
-            <p className="text-sm font-medium">No conversations found</p>
-            <p className="text-xs text-base-content/40">
-              {users.length === 0
-                ? "No other registered users found yet. Register a second account to chat!"
-                : "Try searching with a different name or email"}
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 mx-auto flex items-center justify-center">
+              <UserPlus className="w-6 h-6" />
+            </div>
+            <p className="text-sm font-semibold text-base-content">
+              {users.length === 0 ? "No saved contacts yet" : "No matching contacts"}
             </p>
-            {users.length > 0 ? (
-              <button
-                onClick={onNewChat}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold shadow-sm transition active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" /> Start New Chat
-              </button>
-            ) : onRefresh ? (
-              <button
-                onClick={onRefresh}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-base-200 hover:bg-base-300 text-base-content text-xs font-semibold transition active:scale-95"
-              >
-                <RotateCw className="w-3.5 h-3.5" /> Refresh Contacts
-              </button>
-            ) : null}
+            <p className="text-xs text-base-content/60 max-w-xs mx-auto">
+              {users.length === 0
+                ? "Save your friend's 10-digit mobile number to start chatting with them."
+                : "Try searching with another name or number."}
+            </p>
+            <button
+              onClick={onNewChat}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold shadow-md shadow-emerald-500/20 transition active:scale-95"
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Save New Contact
+            </button>
           </div>
         )}
       </div>
