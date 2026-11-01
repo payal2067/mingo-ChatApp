@@ -67,6 +67,10 @@ const ResetPassword = () => {
       });
 
       // Auto-login: save user session & redirect to chat
+      if (res.data?.token) {
+        sessionStorage.setItem("token", res.data.token);
+        localStorage.setItem("token", res.data.token);
+      }
       if (res.data?.data) {
         sessionStorage.setItem("AppUser", JSON.stringify(res.data.data));
         setUser(res.data.data);

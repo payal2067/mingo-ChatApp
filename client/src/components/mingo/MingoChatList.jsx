@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Plus, MessageSquare } from "lucide-react";
+import { Search, Plus, MessageSquare, RotateCw } from "lucide-react";
 import { motion } from "motion/react";
 
 const MingoChatList = ({
@@ -8,7 +8,8 @@ const MingoChatList = ({
   onSelectFriend,
   onlineUsers = {},
   isLoading = false,
-  onNewChat
+  onNewChat,
+  onRefresh,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTab, setFilterTab] = useState("all"); // 'all' | 'unread' | 'favorites'
@@ -37,13 +38,26 @@ const MingoChatList = ({
           </span>
         </div>
 
-        <button
-          onClick={onNewChat}
-          className="w-8 h-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 active:scale-95 transition"
-          title="New conversation"
-        >
-          <Plus className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1.5">
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              disabled={isLoading}
+              className="w-8 h-8 rounded-xl hover:bg-base-200 text-base-content/60 hover:text-base-content flex items-center justify-center active:scale-95 transition"
+              title="Refresh contacts"
+            >
+              <RotateCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+            </button>
+          )}
+
+          <button
+            onClick={onNewChat}
+            className="w-8 h-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 active:scale-95 transition"
+            title="New conversation"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Search Input */}
@@ -164,10 +178,29 @@ const MingoChatList = ({
             );
           })
         ) : (
-          <div className="p-8 text-center text-base-content/50 space-y-2">
+          <div className="p-8 text-center text-base-content/50 space-y-3">
             <MessageSquare className="w-8 h-8 mx-auto opacity-30 text-emerald-500" />
             <p className="text-sm font-medium">No conversations found</p>
-            <p className="text-xs text-base-content/40">Try searching for another friend</p>
+            <p className="text-xs text-base-content/40">
+              {users.length === 0
+                ? "No other registered users found yet. Register a second account to chat!"
+                : "Try searching with a different name or email"}
+            </p>
+            {users.length > 0 ? (
+              <button
+                onClick={onNewChat}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold shadow-sm transition active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5" /> Start New Chat
+              </button>
+            ) : onRefresh ? (
+              <button
+                onClick={onRefresh}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-base-200 hover:bg-base-300 text-base-content text-xs font-semibold transition active:scale-95"
+              >
+                <RotateCw className="w-3.5 h-3.5" /> Refresh Contacts
+              </button>
+            ) : null}
           </div>
         )}
       </div>

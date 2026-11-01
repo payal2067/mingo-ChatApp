@@ -19,6 +19,8 @@ const MingoRail = ({ activeTab, onSelectTab, onOpenCommand, currentTheme, onTogg
 
   const handleLogout = () => {
     sessionStorage.removeItem("AppUser");
+    sessionStorage.removeItem("token");
+    localStorage.removeItem("token");
     setUser(null);
     setIsLogin(false);
     navigate("/login");

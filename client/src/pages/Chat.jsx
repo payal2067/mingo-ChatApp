@@ -42,6 +42,9 @@ const Chat = () => {
       setUsers(filtered);
     } catch (error) {
       console.error("Failed to fetch users", error);
+      if (error.response?.status === 401) {
+        toast.error("Session expired. Please log in again.");
+      }
     } finally {
       setIsLoadingUsers(false);
     }
@@ -57,9 +60,11 @@ const Chat = () => {
       socketAPI.emit("OmBhramyaNamah", user._id);
       fetchUsers();
 
-      // Listen for real-time online presence
+      // Listen for real-time online presence and new users
       const handleOnlineUsers = (activeMap) => {
         setOnlineUsers(activeMap || {});
+        // Refresh users list so new registered/logged-in users appear in real-time
+        fetchUsers();
       };
       socketAPI.on("onlineUsers", handleOnlineUsers);
 
@@ -98,6 +103,7 @@ const Chat = () => {
           onlineUsers={onlineUsers}
           isLoading={isLoadingUsers}
           onNewChat={() => setIsCommandOpen(true)}
+          onRefresh={fetchUsers}
         />
       </div>
 

@@ -62,6 +62,10 @@ const Login = () => {
       });
 
       toast.success(res.data?.message || "Logged in successfully!");
+      if (res.data?.token) {
+        sessionStorage.setItem("token", res.data.token);
+        localStorage.setItem("token", res.data.token);
+      }
       if (res.data?.data) {
         sessionStorage.setItem("AppUser", JSON.stringify(res.data.data));
         setUser(res.data.data);

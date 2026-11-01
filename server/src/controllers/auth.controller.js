@@ -67,13 +67,14 @@ export const UserLogin = async (req, res, next) => {
             return next(error);
         }
 
-        generateToken(existingUser._id, res);
+        const token = generateToken(existingUser._id, res);
 
         const userData = existingUser.toObject();
         delete userData.password;
 
         res.status(200).json({
             message: "Login successful",
+            token,
             data: userData,
         });
     } catch (error) {
@@ -199,7 +200,7 @@ export const UserResetPassword = async (req, res, next) => {
         await user.save();
 
         // Auto-login: generate token & return user data
-        generateToken(user._id, res);
+        const token = generateToken(user._id, res);
 
         const userData = user.toObject();
         delete userData.password;
@@ -207,6 +208,7 @@ export const UserResetPassword = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: "Password reset successfully",
+            token,
             data: userData,
         });
     } catch (error) {

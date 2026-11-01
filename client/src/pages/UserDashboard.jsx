@@ -94,6 +94,8 @@ const UserDashboard = () => {
   const handleLogout = () => {
     setUser(null);
     sessionStorage.removeItem("AppUser");
+    sessionStorage.removeItem("token");
+    localStorage.removeItem("token");
     setIsLogin(false);
     navigate("/login");
   };

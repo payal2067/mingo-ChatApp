@@ -7,17 +7,36 @@ const WebSocket = (io) => {
 
   io.on("connection", (socket) => {
     socket.on("OmBhramyaNamah", (userID) => {
-      OnlineUsers[userID] = socket.id;
-      console.log("Path Created", userID);
-      console.log("Online User :", OnlineUsers);
-      io.emit("onlineUsers", OnlineUsers);
+      if (userID) {
+        OnlineUsers[userID] = socket.id;
+        console.log("Path Created", userID);
+        console.log("Online User :", OnlineUsers);
+        io.emit("onlineUsers", OnlineUsers);
+      }
     });
 
     socket.on("OmNamahShivay", (userID) => {
-      delete OnlineUsers[userID];
-      console.log("Path Destroyed", userID);
-      console.log("Online User :", OnlineUsers);
-      io.emit("onlineUsers", OnlineUsers);
+      if (userID && OnlineUsers[userID]) {
+        delete OnlineUsers[userID];
+        console.log("Path Destroyed", userID);
+        console.log("Online User :", OnlineUsers);
+        io.emit("onlineUsers", OnlineUsers);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      let changed = false;
+      for (const [userId, sockId] of Object.entries(OnlineUsers)) {
+        if (sockId === socket.id) {
+          delete OnlineUsers[userId];
+          changed = true;
+          break;
+        }
+      }
+      if (changed) {
+        console.log("User disconnected, Online Users:", OnlineUsers);
+        io.emit("onlineUsers", OnlineUsers);
+      }
     });
 
     socket.on("send", async (payload) => {

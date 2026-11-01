@@ -1,6 +1,6 @@
 import Message from "../models/message.model.js";
 
-export const SendMessage = async (req, res) => {
+export const SendMessage = async (req, res, next) => {
   try {
     const { receiverID, message } = req.body;
     const currentUser = req.user;
@@ -24,11 +24,11 @@ export const SendMessage = async (req, res) => {
       .json({ message: "Message sent successfully", data: newMessage });
   } catch (error) {
     console.log(error.message);
-    next();
+    next(error);
   }
 };
 
-export const GetMessages = async (req, res) => {
+export const GetMessages = async (req, res, next) => {
   try {
     const { friendId } = req.params;
     const currentUser = req.user;
@@ -45,6 +45,6 @@ export const GetMessages = async (req, res) => {
     res.status(200).json({ data: messages });
   } catch (error) {
     console.log(error.message);
-    next();
+    next(error);
   }
 };
