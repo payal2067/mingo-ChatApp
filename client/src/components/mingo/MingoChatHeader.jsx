@@ -3,7 +3,8 @@ import {
   Phone,
   Video,
   Info,
-  ChevronLeft
+  ChevronLeft,
+  Pencil
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -12,7 +13,8 @@ const MingoChatHeader = ({
   isOnline = false,
   onBack,
   onToggleDetails,
-  isDetailsOpen
+  isDetailsOpen,
+  onEditContact
 }) => {
   const handleStartCall = (type) => {
     toast(`Initiating ${type} call with ${friend?.fullName || "friend"}...`, {
@@ -48,9 +50,20 @@ const MingoChatHeader = ({
         </div>
 
         <div>
-          <h2 className="text-sm md:text-base font-bold text-base-content leading-tight">
-            {friend?.displayName || friend?.fullName || "Conversation"}
-          </h2>
+          <div className="flex items-center gap-1.5">
+            <h2 className="text-sm md:text-base font-bold text-base-content leading-tight">
+              {friend?.displayName || friend?.fullName || "Conversation"}
+            </h2>
+            {onEditContact && friend && (
+              <button
+                onClick={() => onEditContact(friend)}
+                className="p-1 rounded-lg text-base-content/40 hover:text-emerald-500 hover:bg-base-200 transition"
+                title="Edit contact name"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
           <div className="flex items-center gap-1.5">
             <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-emerald-500" : "bg-base-content/30"}`} />
             <span className="text-xs text-base-content/60 font-medium">

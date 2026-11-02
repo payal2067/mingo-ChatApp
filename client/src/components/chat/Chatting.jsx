@@ -13,7 +13,8 @@ const Chatting = ({
   selectedFriend,
   _currentUser,
   onBack,
-  onlineUsers = {}
+  onlineUsers = {},
+  onEditContact
 }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
@@ -144,6 +145,7 @@ const Chatting = ({
           onBack={onBack}
           onToggleDetails={() => setIsDetailsOpen((v) => !v)}
           isDetailsOpen={isDetailsOpen}
+          onEditContact={onEditContact}
         />
 
         {/* Message Stream */}
@@ -215,6 +217,7 @@ const Chatting = ({
         friend={selectedFriend}
         isOnline={isFriendOnline}
         onClearChat={() => setMessages([])}
+        onEditContact={onEditContact}
       />
 
     </div>

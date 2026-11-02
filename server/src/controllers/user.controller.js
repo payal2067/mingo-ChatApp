@@ -187,6 +187,64 @@ export const removeContact = async (req, res, next) => {
     }
 };
 
+export const editContactName = async (req, res, next) => {
+    try {
+        const { contactUserId } = req.params;
+        const { contactName } = req.body;
+
+        if (!contactName || !contactName.trim()) {
+            const error = new Error("Contact name cannot be empty");
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        const currentUser = await User.findById(req.user._id);
+        if (!currentUser) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            return next(error);
+        }
+
+        if (!currentUser.savedContacts) {
+            currentUser.savedContacts = [];
+        }
+
+        const finalName = contactName.trim();
+        const existingIndex = currentUser.savedContacts.findIndex(
+            (c) => c.user?.toString() === contactUserId,
+        );
+
+        if (existingIndex > -1) {
+            currentUser.savedContacts[existingIndex].contactName = finalName;
+        } else {
+            const targetUser = await User.findById(contactUserId).select("-password");
+            if (!targetUser) {
+                const error = new Error("Contact user not found");
+                error.statusCode = 404;
+                return next(error);
+            }
+            currentUser.savedContacts.push({
+                user: targetUser._id,
+                contactName: finalName,
+                mobileNumber: cleanMobile(targetUser.mobileNumber) || "",
+            });
+        }
+
+        await currentUser.save();
+
+        res.status(200).json({
+            success: true,
+            message: `Contact name updated to "${finalName}"`,
+            data: {
+                contactUserId,
+                displayName: finalName,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const updateProfile = async (req, res, next) => {
     try {
         const currentUser = req.user;

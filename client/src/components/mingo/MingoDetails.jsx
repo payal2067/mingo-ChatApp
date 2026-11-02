@@ -7,7 +7,8 @@ import {
   Trash2,
   FileText,
   Link2,
-  ExternalLink
+  ExternalLink,
+  Pencil
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import toast from "react-hot-toast";
@@ -17,7 +18,8 @@ const MingoDetails = ({
   onClose,
   friend,
   isOnline = false,
-  onClearChat
+  onClearChat,
+  onEditContact
 }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [activeMediaTab, setActiveMediaTab] = useState("media"); // 'media' | 'files' | 'links'
@@ -74,7 +76,25 @@ const MingoDetails = ({
               )}
             </div>
 
-            <h4 className="text-lg font-bold text-base-content">{friend?.displayName || friend?.fullName || "Friend"}</h4>
+            <div className="flex items-center justify-center gap-1.5 mt-1">
+              <h4 className="text-lg font-bold text-base-content">
+                {friend?.displayName || friend?.fullName || "Friend"}
+              </h4>
+              {onEditContact && friend && (
+                <button
+                  onClick={() => onEditContact(friend)}
+                  className="p-1 rounded-md text-base-content/40 hover:text-emerald-500 hover:bg-base-200 transition"
+                  title="Edit contact name"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            {friend?.displayName && friend?.displayName !== friend?.fullName && (
+              <p className="text-[11px] text-base-content/50">
+                Registered: {friend?.fullName}
+              </p>
+            )}
             {(friend?.savedMobileNumber || friend?.mobileNumber) && (
               <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">
                 📞 +91 {friend?.savedMobileNumber || friend?.mobileNumber}
@@ -85,6 +105,15 @@ const MingoDetails = ({
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               {isOnline ? "Active on Mingo" : "Offline"}
             </span>
+
+            {onEditContact && friend && (
+              <button
+                onClick={() => onEditContact(friend)}
+                className="btn btn-sm btn-outline btn-primary rounded-xl w-full text-xs gap-1.5 mt-3"
+              >
+                <Pencil className="w-3.5 h-3.5" /> Edit Contact Name
+              </button>
+            )}
           </div>
 
           {/* Quick Actions */}

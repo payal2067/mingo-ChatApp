@@ -9,6 +9,7 @@ import Chatting from "../components/chat/Chatting";
 import MingoEmptyState from "../components/mingo/MingoEmptyState";
 import MingoCommand from "../components/mingo/MingoCommand";
 import AddContactModal from "../components/commonModals/AddContactModal";
+import EditContactModal from "../components/commonModals/EditContactModal";
 import toast from "react-hot-toast";
 
 const Chat = () => {
@@ -21,6 +22,7 @@ const Chat = () => {
   const [activeRailTab, setActiveRailTab] = useState("chats");
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isAddContactOpen, setIsAddContactOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState(null);
   const [currentTheme, setCurrentTheme] = useState(
     localStorage.getItem("mingoTheme") || "dark"
   );
@@ -49,6 +51,15 @@ const Chat = () => {
       }
     } finally {
       setIsLoadingUsers(false);
+    }
+  };
+
+  const handleContactUpdated = ({ contactUserId, displayName }) => {
+    setUsers((prev) =>
+      prev.map((u) => (u._id === contactUserId ? { ...u, displayName } : u))
+    );
+    if (selectedFriend?._id === contactUserId) {
+      setSelectedFriend((prev) => (prev ? { ...prev, displayName } : null));
     }
   };
 
@@ -117,6 +128,7 @@ const Chat = () => {
             currentUser={user}
             onBack={() => setSelectedFriend(null)}
             onlineUsers={onlineUsers}
+            onEditContact={(contact) => setEditingContact(contact)}
           />
         ) : (
           <MingoEmptyState
@@ -148,6 +160,14 @@ const Chat = () => {
           ]);
           setSelectedFriend(newContact);
         }}
+      />
+
+      {/* 6. Edit Contact Name Modal */}
+      <EditContactModal
+        open={!!editingContact}
+        friend={editingContact}
+        onClose={() => setEditingContact(null)}
+        onContactUpdated={handleContactUpdated}
       />
     </div>
   );
