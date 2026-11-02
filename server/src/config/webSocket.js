@@ -1,4 +1,5 @@
 import Message from "../models/message.model.js";
+import User from "../models/user.model.js";
 
 const OnlineUsers = {};
 
@@ -40,26 +41,53 @@ const WebSocket = (io) => {
     });
 
     socket.on("send", async (payload) => {
-      console.log("Massage Pack", payload);
+      console.log("Message Pack", payload);
+      if (!payload?.senderID || !payload?.receiverID || !payload?.message) return;
 
-      const newMessage = await Message.create({
-        senderId: payload.senderID,
-        receiverId: payload.receiverID,
-        message: payload.message,
-      });
+      try {
+        const [sender, receiver] = await Promise.all([
+          User.findById(payload.senderID).select("blockedUsers"),
+          User.findById(payload.receiverID).select("blockedUsers"),
+        ]);
 
-      console.log("Message Saved to DB", newMessage);
+        const isSenderBlocked = sender?.blockedUsers?.some(
+          (id) => id.toString() === payload.receiverID.toString(),
+        );
+        const isReceiverBlocked = receiver?.blockedUsers?.some(
+          (id) => id.toString() === payload.senderID.toString(),
+        );
 
-      const newMessagePack = newMessage.toObject();
-      delete newMessagePack._id;
-      delete newMessagePack.__v;
+        if (isSenderBlocked || isReceiverBlocked) {
+          console.log("Message delivery blocked by user block list");
+          socket.emit("blockedNotice", {
+            error: isSenderBlocked
+              ? "You have blocked this contact. Unblock to send messages."
+              : "Message not delivered.",
+          });
+          return;
+        }
 
-      const reciversSocketID = OnlineUsers[payload.receiverID];
+        const newMessage = await Message.create({
+          senderId: payload.senderID,
+          receiverId: payload.receiverID,
+          message: payload.message,
+        });
 
-      if (reciversSocketID) {
-        console.log("NewMessagePack : ", newMessagePack);
+        console.log("Message Saved to DB", newMessage);
 
-        io.to(reciversSocketID).emit("receive", newMessagePack);
+        const newMessagePack = newMessage.toObject();
+        delete newMessagePack._id;
+        delete newMessagePack.__v;
+
+        const reciversSocketID = OnlineUsers[payload.receiverID];
+
+        if (reciversSocketID) {
+          console.log("NewMessagePack : ", newMessagePack);
+
+          io.to(reciversSocketID).emit("receive", newMessagePack);
+        }
+      } catch (err) {
+        console.error("Socket send message error:", err);
       }
     });
   });

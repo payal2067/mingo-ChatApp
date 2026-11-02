@@ -23,6 +23,9 @@ export const getAllUsers = async (req, res, next) => {
 
         const chatUsers = [];
         const seenUserIds = new Set();
+        const blockedSet = new Set(
+            (currentUser.blockedUsers || []).map((id) => id.toString()),
+        );
 
         // 1. Only include users whose contact numbers are saved
         (currentUser.savedContacts || []).forEach((c) => {
@@ -36,6 +39,7 @@ export const getAllUsers = async (req, res, next) => {
                         displayName: c.contactName || uObj.fullName,
                         savedMobileNumber: c.mobileNumber,
                         isSavedContact: true,
+                        isBlocked: blockedSet.has(uidStr),
                     });
                 }
             }
@@ -68,6 +72,7 @@ export const getAllUsers = async (req, res, next) => {
                     ...uObj,
                     displayName: uObj.fullName,
                     isSavedContact: false,
+                    isBlocked: blockedSet.has(uObj._id.toString()),
                 });
             });
         }
@@ -239,6 +244,86 @@ export const editContactName = async (req, res, next) => {
                 contactUserId,
                 displayName: finalName,
             },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const blockContact = async (req, res, next) => {
+    try {
+        const { contactUserId } = req.params;
+        const currentUser = await User.findById(req.user._id);
+
+        if (!currentUser) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            return next(error);
+        }
+
+        if (currentUser._id.toString() === contactUserId) {
+            const error = new Error("You cannot block yourself");
+            error.statusCode = 400;
+            return next(error);
+        }
+
+        const targetUser = await User.findById(contactUserId).select("-password");
+        if (!targetUser) {
+            const error = new Error("User to block not found");
+            error.statusCode = 404;
+            return next(error);
+        }
+
+        if (!currentUser.blockedUsers) {
+            currentUser.blockedUsers = [];
+        }
+
+        const alreadyBlocked = currentUser.blockedUsers.some(
+            (id) => id.toString() === contactUserId,
+        );
+
+        if (!alreadyBlocked) {
+            currentUser.blockedUsers.push(targetUser._id);
+            await currentUser.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            isBlocked: true,
+            message: `Contact "${targetUser.fullName}" blocked successfully`,
+            data: { contactUserId, isBlocked: true },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const unblockContact = async (req, res, next) => {
+    try {
+        const { contactUserId } = req.params;
+        const currentUser = await User.findById(req.user._id);
+
+        if (!currentUser) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            return next(error);
+        }
+
+        const targetUser = await User.findById(contactUserId).select("-password");
+
+        currentUser.blockedUsers = (currentUser.blockedUsers || []).filter(
+            (id) => id.toString() !== contactUserId,
+        );
+
+        await currentUser.save();
+
+        res.status(200).json({
+            success: true,
+            isBlocked: false,
+            message: targetUser
+                ? `Contact "${targetUser.fullName}" unblocked successfully`
+                : "Contact unblocked successfully",
+            data: { contactUserId, isBlocked: false },
         });
     } catch (error) {
         next(error);

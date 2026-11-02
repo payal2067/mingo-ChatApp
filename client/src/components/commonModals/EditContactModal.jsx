@@ -154,3 +154,4 @@ const EditContactModal = ({ open, onClose, friend, onContactUpdated }) => {
 };
 
 export default EditContactModal;
+

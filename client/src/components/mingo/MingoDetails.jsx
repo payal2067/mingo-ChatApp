@@ -19,7 +19,9 @@ const MingoDetails = ({
   friend,
   isOnline = false,
   onClearChat,
-  onEditContact
+  onEditContact,
+  isBlocked = false,
+  onToggleBlock
 }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [activeMediaTab, setActiveMediaTab] = useState("media"); // 'media' | 'files' | 'links'
@@ -132,16 +134,15 @@ const MingoDetails = ({
             </button>
 
             <button
-              onClick={() => {
-                toast("Contact blocked", {
-                  icon: "🛡️",
-                  style: { borderRadius: "12px", background: "#0B0F17", color: "#fff" }
-                });
-              }}
-              className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-base-200/70 hover:bg-base-200 text-xs font-medium text-base-content transition"
+              onClick={onToggleBlock}
+              className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl text-xs font-medium transition ${
+                isBlocked
+                  ? "bg-rose-500/15 text-rose-500 hover:bg-rose-500/25"
+                  : "bg-base-200/70 hover:bg-base-200 text-base-content"
+              }`}
             >
-              <Shield className="w-4 h-4 text-base-content/60" />
-              <span>Block</span>
+              <Shield className={`w-4 h-4 ${isBlocked ? "text-rose-500" : "text-base-content/60"}`} />
+              <span>{isBlocked ? "Unblock" : "Block"}</span>
             </button>
           </div>
 
@@ -239,7 +240,19 @@ const MingoDetails = ({
           </div>
 
           {/* Danger Zone */}
-          <div className="pt-4 border-t border-base-content/10">
+          <div className="pt-4 border-t border-base-content/10 space-y-2">
+            <button
+              onClick={onToggleBlock}
+              className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition ${
+                isBlocked
+                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25"
+                  : "text-rose-500 hover:bg-rose-500/10"
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              <span>{isBlocked ? "Unblock Contact" : "Block Contact"}</span>
+            </button>
+
             <button
               onClick={() => {
                 if (window.confirm("Clear all messages in this conversation?")) {
@@ -247,7 +260,7 @@ const MingoDetails = ({
                   toast.success("Chat history cleared");
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-rose-500 hover:bg-rose-500/10 text-xs font-semibold transition"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-base-content/60 hover:bg-base-200 text-xs font-semibold transition"
             >
               <Trash2 className="w-4 h-4" />
               <span>Clear Chat History</span>

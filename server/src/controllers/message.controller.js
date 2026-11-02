@@ -1,4 +1,5 @@
 import Message from "../models/message.model.js";
+import User from "../models/user.model.js";
 
 export const SendMessage = async (req, res, next) => {
   try {
@@ -11,6 +12,22 @@ export const SendMessage = async (req, res, next) => {
     if (!receiverID || !message) {
       const error = new Error("All fields required");
       error.statusCode = 400;
+      return next(error);
+    }
+
+    // Check if sender has blocked receiver
+    const sender = await User.findById(currentUser._id).select("blockedUsers");
+    if (sender?.blockedUsers?.some((id) => id.toString() === receiverID.toString())) {
+      const error = new Error("You have blocked this contact. Unblock to send messages.");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    // Check if receiver has blocked sender
+    const receiver = await User.findById(receiverID).select("blockedUsers");
+    if (receiver?.blockedUsers?.some((id) => id.toString() === currentUser._id.toString())) {
+      const error = new Error("You cannot send messages to this contact because you have been blocked.");
+      error.statusCode = 403;
       return next(error);
     }
 

@@ -54,6 +54,11 @@ const MingoChatHeader = ({
             <h2 className="text-sm md:text-base font-bold text-base-content leading-tight">
               {friend?.displayName || friend?.fullName || "Conversation"}
             </h2>
+            {friend?.isBlocked && (
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-rose-500/15 text-rose-500 border border-rose-500/20">
+                Blocked
+              </span>
+            )}
             {onEditContact && friend && (
               <button
                 onClick={() => onEditContact(friend)}
@@ -65,10 +70,19 @@ const MingoChatHeader = ({
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-emerald-500" : "bg-base-content/30"}`} />
-            <span className="text-xs text-base-content/60 font-medium">
-              {isOnline ? "Online now" : "Last seen recently"}
-            </span>
+            {friend?.isBlocked ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                <span className="text-xs text-rose-500 font-semibold">Blocked contact</span>
+              </>
+            ) : (
+              <>
+                <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-emerald-500" : "bg-base-content/30"}`} />
+                <span className="text-xs text-base-content/60 font-medium">
+                  {isOnline ? "Online now" : "Last seen recently"}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>

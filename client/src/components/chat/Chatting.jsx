@@ -11,10 +11,11 @@ import toast from "react-hot-toast";
 
 const Chatting = ({
   selectedFriend,
-  _currentUser,
+  currentUser: _currentUser,
   onBack,
   onlineUsers = {},
-  onEditContact
+  onEditContact,
+  onBlockStatusChange
 }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
@@ -26,9 +27,35 @@ const Chatting = ({
   const typingTimeoutRef = useRef(null);
 
   const isFriendOnline = !!onlineUsers[selectedFriend?._id];
+  const isBlocked = !!selectedFriend?.isBlocked;
 
   const scrollToBottom = (smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+  };
+
+  const handleToggleBlock = async () => {
+    if (!selectedFriend?._id) return;
+    const action = isBlocked ? "unblock" : "block";
+    try {
+      const res = await api.post(`/user/${action}/${selectedFriend._id}`);
+      if (res.data?.success) {
+        const nextState = !isBlocked;
+        toast.success(
+          res.data.message || (nextState ? "Contact blocked" : "Contact unblocked"),
+          {
+            style: { borderRadius: "12px", background: "#0B0F17", color: "#fff" }
+          }
+        );
+        if (onBlockStatusChange) {
+          onBlockStatusChange(selectedFriend._id, nextState);
+        }
+      } else {
+        toast.error(res.data?.message || `Failed to ${action} contact`);
+      }
+    } catch (error) {
+      console.error(`Failed to ${action} contact`, error);
+      toast.error(error.response?.data?.message || `Failed to ${action} contact`);
+    }
   };
 
   // Fetch conversation messages
@@ -72,14 +99,22 @@ const Chatting = ({
   useEffect(() => {
     fetchChatData();
 
+    const handleBlockedNotice = (data) => {
+      if (data?.error) {
+        toast.error(data.error);
+      }
+    };
+
     if (selectedFriend) {
       socketAPI.on("receive", handleReceiveMessage);
       socketAPI.on("userTyping", handleIncomingTyping);
+      socketAPI.on("blockedNotice", handleBlockedNotice);
     }
 
     return () => {
       socketAPI.off("receive", handleReceiveMessage);
       socketAPI.off("userTyping", handleIncomingTyping);
+      socketAPI.off("blockedNotice", handleBlockedNotice);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,6 +122,10 @@ const Chatting = ({
 
   // Sending message
   const handleSendMessage = async (text) => {
+    if (isBlocked) {
+      toast.error("You have blocked this contact. Unblock to send messages.");
+      return;
+    }
     if (!text.trim()) return;
 
     const timeStamp = new Date().toISOString();
@@ -207,6 +246,8 @@ const Chatting = ({
           onTyping={handleBroadcastTyping}
           replyingTo={replyingTo}
           onCancelReply={() => setReplyingTo(null)}
+          isBlocked={isBlocked}
+          onUnblock={handleToggleBlock}
         />
       </div>
 
@@ -218,6 +259,8 @@ const Chatting = ({
         isOnline={isFriendOnline}
         onClearChat={() => setMessages([])}
         onEditContact={onEditContact}
+        isBlocked={isBlocked}
+        onToggleBlock={handleToggleBlock}
       />
 
     </div>

@@ -43,6 +43,12 @@ const userSchema = new mongoose.Schema(
             required: true,
         },
         savedContacts: [savedContactSchema],
+        blockedUsers: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
     },
     { timestamps: true },
 );

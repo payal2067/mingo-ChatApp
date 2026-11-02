@@ -14,7 +14,9 @@ const MingoComposer = ({
   onSendMessage,
   onTyping,
   replyingTo,
-  onCancelReply
+  onCancelReply,
+  isBlocked = false,
+  onUnblock
 }) => {
   const [text, setText] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -89,6 +91,27 @@ const MingoComposer = ({
       });
     }
   };
+
+  if (isBlocked) {
+    return (
+      <footer className="p-3 md:p-4 bg-base-100/90 border-t border-base-content/10 backdrop-blur-md relative z-10">
+        <div className="max-w-4xl mx-auto flex items-center justify-between p-3.5 rounded-2xl bg-base-200/70 border border-base-content/10">
+          <p className="text-xs text-base-content/70 flex items-center gap-2 font-medium">
+            <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+            You have blocked this contact. Unblock to send messages.
+          </p>
+          {onUnblock && (
+            <button
+              onClick={onUnblock}
+              className="btn btn-xs bg-rose-500 hover:bg-rose-600 text-white rounded-xl border-none shadow-sm active:scale-95 transition"
+            >
+              Unblock
+            </button>
+          )}
+        </div>
+      </footer>
+    );
+  }
 
   return (
     <footer className="p-3 md:p-4 bg-base-100/90 border-t border-base-content/10 backdrop-blur-md relative z-10">

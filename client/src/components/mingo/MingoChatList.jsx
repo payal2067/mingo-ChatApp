@@ -15,9 +15,11 @@ const MingoChatList = ({
   const [filterTab, setFilterTab] = useState("all"); // 'all' | 'unread' | 'favorites'
 
   const filteredUsers = users.filter((friend) => {
+    const q = searchQuery.toLowerCase();
     const matchesSearch =
-      friend.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      friend.email?.toLowerCase().includes(searchQuery.toLowerCase());
+      (friend.displayName || friend.fullName)?.toLowerCase().includes(q) ||
+      friend.email?.toLowerCase().includes(q) ||
+      (friend.savedMobileNumber || friend.mobileNumber)?.includes(searchQuery);
     
     if (!matchesSearch) return false;
     if (filterTab === "unread") return friend.unreadCount > 0;
@@ -152,11 +154,18 @@ const MingoChatList = ({
                 {/* Info & Snippet */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
-                    <h3 className={`text-sm truncate font-semibold ${isSelected ? "text-emerald-600 dark:text-emerald-400" : "text-base-content"}`}>
-                      {friend.displayName || friend.fullName}
-                    </h3>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <h3 className={`text-sm truncate font-semibold ${isSelected ? "text-emerald-600 dark:text-emerald-400" : "text-base-content"}`}>
+                        {friend.displayName || friend.fullName}
+                      </h3>
+                      {friend.isBlocked && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-rose-500/15 text-rose-500 shrink-0">
+                          Blocked
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[11px] text-base-content/40 shrink-0">
-                      {isOnline ? "Online" : "Recently"}
+                      {friend.isBlocked ? "Blocked" : isOnline ? "Online" : "Recently"}
                     </span>
                   </div>
 

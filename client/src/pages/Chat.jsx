@@ -63,6 +63,15 @@ const Chat = () => {
     }
   };
 
+  const handleBlockStatusChange = (contactUserId, isBlocked) => {
+    setUsers((prev) =>
+      prev.map((u) => (u._id === contactUserId ? { ...u, isBlocked } : u))
+    );
+    if (selectedFriend?._id === contactUserId) {
+      setSelectedFriend((prev) => (prev ? { ...prev, isBlocked } : null));
+    }
+  };
+
   useEffect(() => {
     if (!isLogin) {
       navigate("/login");
@@ -129,6 +138,7 @@ const Chat = () => {
             onBack={() => setSelectedFriend(null)}
             onlineUsers={onlineUsers}
             onEditContact={(contact) => setEditingContact(contact)}
+            onBlockStatusChange={handleBlockStatusChange}
           />
         ) : (
           <MingoEmptyState
