@@ -82,6 +82,14 @@ const Chatting = ({
     ) {
       setMessages((prev) => [...prev, newMessagePack]);
       setTimeout(() => scrollToBottom(true), 50);
+
+      // Acknowledge delivery to sender if we are in this chat
+      if (newMessagePack.senderId === selectedFriend?._id && user?._id) {
+        socketAPI.emit("markDelivered", {
+          senderId: selectedFriend._id,
+          receiverId: user._id,
+        });
+      }
     }
   };
 
@@ -105,20 +113,72 @@ const Chatting = ({
       }
     };
 
-    if (selectedFriend) {
+    const handleMessageSentAck = ({ tempId, message, status }) => {
+      setMessages((prev) =>
+        prev.map((m) => {
+          if (m.tempId === tempId || m._id === tempId) {
+            return {
+              ...m,
+              ...(message || {}),
+              status: status || message?.status || m.status,
+            };
+          }
+          return m;
+        })
+      );
+    };
+
+    const handleMessagesDelivered = ({ receiverId }) => {
+      if (receiverId === selectedFriend?._id) {
+        setMessages((prev) =>
+          prev.map((m) => {
+            const isMyMsg =
+              m.senderId === user?._id ||
+              m.senderId === user?._id?.toString();
+            return isMyMsg ? { ...m, status: "delivered" } : m;
+          })
+        );
+      }
+    };
+
+    if (selectedFriend && user?._id) {
+      // Mark any pending incoming messages as delivered
+      socketAPI.emit("markDelivered", {
+        senderId: selectedFriend._id,
+        receiverId: user._id,
+      });
+
       socketAPI.on("receive", handleReceiveMessage);
       socketAPI.on("userTyping", handleIncomingTyping);
       socketAPI.on("blockedNotice", handleBlockedNotice);
+      socketAPI.on("messageSentAck", handleMessageSentAck);
+      socketAPI.on("messagesDelivered", handleMessagesDelivered);
     }
 
     return () => {
       socketAPI.off("receive", handleReceiveMessage);
       socketAPI.off("userTyping", handleIncomingTyping);
       socketAPI.off("blockedNotice", handleBlockedNotice);
+      socketAPI.off("messageSentAck", handleMessageSentAck);
+      socketAPI.off("messagesDelivered", handleMessagesDelivered);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFriend]);
+
+  // When friend comes online, mark sent messages as delivered
+  useEffect(() => {
+    if (isFriendOnline && selectedFriend?._id) {
+      setMessages((prev) =>
+        prev.map((m) => {
+          const isMyMsg =
+            m.senderId === user?._id ||
+            m.senderId === user?._id?.toString();
+          return isMyMsg && m.status === "sent" ? { ...m, status: "delivered" } : m;
+        })
+      );
+    }
+  }, [isFriendOnline, selectedFriend?._id, user?._id]);
 
   // Sending message
   const handleSendMessage = async (text) => {
@@ -129,7 +189,11 @@ const Chatting = ({
     if (!text.trim()) return;
 
     const timeStamp = new Date().toISOString();
+    const tempId = `temp-${Date.now()}`;
+    const initialStatus = isFriendOnline ? "delivered" : "sent";
+
     const payload = {
+      tempId,
       senderID: user._id,
       receiverID: selectedFriend._id,
       message: text,
@@ -137,10 +201,12 @@ const Chatting = ({
 
     // Optimistic UI update
     const optimisticMsg = {
-      _id: `temp-${Date.now()}`,
+      _id: tempId,
+      tempId,
       senderId: user._id,
       receiverId: selectedFriend._id,
       message: text,
+      status: initialStatus,
       createdAt: timeStamp,
       updatedAt: timeStamp,
     };
@@ -153,14 +219,21 @@ const Chatting = ({
         socketAPI.emit("send", payload);
       } else {
         // Fallback to REST API
-        await api.post("/user/send-message", {
+        const res = await api.post("/user/send-message", {
           receiverID: selectedFriend._id,
           message: text,
         });
+        if (res.data?.data) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m._id === tempId ? { ...res.data.data, tempId } : m
+            )
+          );
+        }
       }
     } catch (error) {
       console.error("Failed to send message", error);
-      toast.error("Failed to deliver message. Retrying...");
+      toast.error(error.response?.data?.message || "Failed to deliver message. Retrying...");
     }
   };
 

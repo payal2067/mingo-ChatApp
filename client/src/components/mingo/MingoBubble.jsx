@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CheckCheck, Copy, Reply } from "lucide-react";
+import { Check, CheckCheck, Copy, Reply } from "lucide-react";
 import toast from "react-hot-toast";
 
 const MingoBubble = ({
@@ -115,7 +115,19 @@ const MingoBubble = ({
           >
             <span>{formatTime(chat.createdAt || chat.updatedAt || new Date())}</span>
             {isSender && (
-              <CheckCheck className="w-3.5 h-3.5 text-emerald-200 inline" />
+              <>
+                {chat.status === "sent" ? (
+                  <Check
+                    className="w-3.5 h-3.5 text-white/75 inline"
+                    title="Sent (single tick: not delivered yet)"
+                  />
+                ) : (
+                  <CheckCheck
+                    className="w-3.5 h-3.5 text-emerald-200 inline"
+                    title="Delivered (double tick)"
+                  />
+                )}
+              </>
             )}
           </div>
         </div>

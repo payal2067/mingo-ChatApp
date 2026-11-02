@@ -1,5 +1,6 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
+import { OnlineUsers } from "../config/webSocket.js";
 
 export const SendMessage = async (req, res, next) => {
   try {
@@ -31,10 +32,14 @@ export const SendMessage = async (req, res, next) => {
       return next(error);
     }
 
+    const isReceiverOnline = !!OnlineUsers[receiverID];
+    const status = isReceiverOnline ? "delivered" : "sent";
+
     const newMessage = await Message.create({
       senderId: currentUser._id,
       receiverId: receiverID,
       message,
+      status,
     });
     res
       .status(201)
@@ -50,6 +55,12 @@ export const GetMessages = async (req, res, next) => {
     const { friendId } = req.params;
     const currentUser = req.user;
 
+    // Automatically mark pending sent messages from friend as delivered
+    await Message.updateMany(
+      { senderId: friendId, receiverId: currentUser._id, status: "sent" },
+      { $set: { status: "delivered" } },
+    );
+
     const messages = await Message.find({
       $or: [
         { senderId: currentUser._id, receiverId: friendId },
@@ -57,7 +68,7 @@ export const GetMessages = async (req, res, next) => {
       ],
     })
       .sort({ createdAt: 1 })
-      .select("-_id -__v");
+      .select("-__v");
 
     res.status(200).json({ data: messages });
   } catch (error) {
